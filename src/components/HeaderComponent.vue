@@ -11,18 +11,30 @@
         <router-link to="/catalog" class="header__item">
           <p>Каталог услуг</p>
         </router-link>
-        <router-link to="/auth" class="header__item">
+        <router-link v-if="!token" to="/auth" class="header__item">
           <p>Войти</p>
         </router-link>
-        <router-link to="/registration" class="header__item">
+        <router-link v-if="token" to="/logout" class="header__item">
+          <p>Выйти</p>
+        </router-link>
+        <router-link v-if="!token" to="/registration" class="header__item">
           <p>Регистрация</p>
+        </router-link>
+        <router-link v-if="token" to="/lk" class="header__item">
+          <p>Личный кабинет</p>
         </router-link>
       </nav>
     </div>
     <div class="header__underline"></div>
   </div>
 </template>
-<script setup></script>
+
+<script setup>
+import { computed } from 'vue'
+
+const token = computed(() => localStorage.getItem('token'))
+</script>
+
 <style lang="scss">
 .logo {
   width: 150px;

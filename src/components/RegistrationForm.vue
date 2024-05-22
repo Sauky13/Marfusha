@@ -1,19 +1,84 @@
 <template>
   <div class="authorization-form">
-    <form class="authorization-form__border">
+    <div v-if="token">
+      <h2>Вы успешно зарегистрированны</h2>
+    </div>
+    <form v-else class="authorization-form__border" @submit.prevent="register">
       <h2 class="authorization-form__title">Регистрация</h2>
       <div class="authorization-form__block">
-        <input type="text" placeholder="Введите имя" class="authorization-form__input">
-        <input type="email" placeholder="Введите email" class="authorization-form__input">
-        <input type="password" placeholder="Введите пароль" class="authorization-form__input">
+        <input v-model="fullName" type="text" placeholder="Введите имя" class="authorization-form__input">
+        <input v-model="email" type="email" placeholder="Введите email" class="authorization-form__input">
+        <input v-model="password" type="password" placeholder="Введите пароль" class="authorization-form__input">
         <input type="password" placeholder="Повторите пароль" class="authorization-form__input">
         <button class="authorization-form__button">Зарегистрироваться</button>
       </div>
     </form>
   </div>
 </template>
-<script setup>
+
+<script>
+import { ref, onMounted } from 'vue';
+
+export default {
+  setup() {
+    const fullName = ref('');
+    const email = ref('');
+    const password = ref('');
+    const token = ref(null);
+
+    onMounted(() => {
+      token.value = localStorage.getItem('token');
+    });
+
+    const register = async () => {
+      try {
+        const response = await fetch("https://0052e5635286382d.mokky.dev/register", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            fullName: fullName.value,
+            email: email.value,
+            password: password.value
+          })
+        });
+
+        if (!response.ok) {
+          const message = `An error has occured: ${response.status}`;
+          throw new Error(message);
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+        localStorage.setItem('token', data.token);
+        token.value = data.token;
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    return {
+      fullName,
+      email,
+      password,
+      register,
+      token
+    };
+  }
+};
 </script>
+
+
+
+
+
+
+
+
+
 <style lang="scss">
 .authorization-form {
   &__border {

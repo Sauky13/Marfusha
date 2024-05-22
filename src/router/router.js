@@ -34,6 +34,11 @@ export const router = createRouter({
             component: () => import('../pages/AuthPage.vue')
         },
         {
+            path: '/logout',
+            name: 'logout',
+            component: () => import('../pages/LogoutPage.vue')
+        },
+        {
             path: '/registration',
             name: 'registration',
             component: () => import('../pages/RegistrationPage.vue')

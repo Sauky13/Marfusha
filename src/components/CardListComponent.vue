@@ -1,6 +1,6 @@
 <template>
   <div class="container__card">
-    <catalog-card v-for="item in items" :key="item.id" :imgUrl="item.img" :title="item.name" />
+    <catalog-card v-for="item in items" :key="item.id" :imgUrl="item.img" :title="item.name" :id="item.id" />
   </div>
 </template>
 

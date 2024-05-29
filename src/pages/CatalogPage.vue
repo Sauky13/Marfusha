@@ -19,15 +19,11 @@ onMounted(async () => {
     const response = await fetch('https://0052e5635286382d.mokky.dev/catalog')
     const data = await response.json()
     items.value = data
-
   } catch (error) {
     console.log(error)
   }
 })
 </script>
 
-<style>
 
-</style>
-
-
+<style></style>

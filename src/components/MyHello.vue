@@ -1,5 +1,3 @@
-<script setup></script>
-
 <template>
   <div class="intro">
     <img src="@/assets/img/girl.jpg" alt="girl" id="girl" class="rounded-bl" />
@@ -12,16 +10,26 @@
         <p>Дополнительная информация по номеру +79138214554</p>
       </div>
       <div class="btn">
-        <button id="btn">ЗАПИСАТЬСЯ</button>
+        <button id="btn" @click="goToRecords">ЗАПИСАТЬСЯ</button>
       </div>
     </div>
   </div>
 </template>
 
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const goToRecords = () => {
+  router.push('/records');
+};
+</script>
+
 <style scoped>
 #girl {
-  width: 420px;
-  height: 420px;
+  width: 520px;
+  height: 520px;
 }
 .intro {
   margin-top: 40px;
@@ -30,11 +38,11 @@
   gap: 34px;
 }
 h1 {
-  font-size: 40px;
+  font-size: 50px;
   color: rgba(75, 65, 44, 1);
 }
 p {
-  font-size: 12px;
+  font-size: 16px;
   color: rgba(75, 65, 44, 1);
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
@@ -55,5 +63,10 @@ p {
   width: 230px;
   height: 50px;
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  transition: transform 0.3s ease;
 }
+#btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
 </style>

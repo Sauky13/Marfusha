@@ -6,24 +6,21 @@
     <form v-else class="authorization-form__border" @submit.prevent="authorize">
       <h2 class="authorization-form__title">Авторизация</h2>
       <div class="authorization-form__block">
-        <input v-model="email" type="tel" placeholder="Введите email" class="authorization-form__input" />
-        <input v-model="password" type="password" placeholder="Введите пароль" class="authorization-form__input" />
-        <button class="authorization-form__button">Авторизироваться</button>
-      </div>
+      <input id="email" name="email" v-model="email" type="email" placeholder="Введите email" class="authorization-form__input" autocomplete="email" />
+      <input id="password" name="password" v-model="password" type="password" placeholder="Введите пароль" class="authorization-form__input" autocomplete="current-password" />
+      <button class="authorization-form__button" :class="{ 'button-active': !fieldsEmpty }" :disabled="fieldsEmpty">Авторизироваться</button>
+    </div>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 
-const email = ref('');
+const email = ref(localStorage.getItem('email') || ''); 
 const password = ref('');
-const token = ref(null);
-
-onMounted(() => {
-  token.value = localStorage.getItem('token');
-});
+const token = ref(localStorage.getItem('token') || null);
+const fieldsEmpty = computed(() => email.value === '' || password.value === '');
 
 const authorize = async () => {
   try {
@@ -34,7 +31,7 @@ const authorize = async () => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        email: email.value,
+        email: email.value, 
         password: password.value
       })
     });
@@ -45,23 +42,20 @@ const authorize = async () => {
     }
 
     const data = await response.json();
-    console.log(data);
 
     localStorage.setItem('token', data.token);
+    localStorage.setItem('fullName', data.data.fullName);
+    localStorage.setItem('phoneNumber', data.data.phoneNumber); 
+    localStorage.setItem('user_id', data.data.id);
+    localStorage.setItem('email', data.data.email); 
+    
+    location.reload(); 
     token.value = data.token;
   } catch (error) {
     console.error(error);
   }
 };
 </script>
-
-
-
-
-
-
-
-
 
 
 
@@ -105,6 +99,9 @@ const authorize = async () => {
     width: 230px;
     height: 50px;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    &.button-active {
+      background: #9e7d5d;
+    }
   }
 }
 </style>

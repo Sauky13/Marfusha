@@ -1,22 +1,27 @@
 <template>
   <div class="block">
-    <div class="block__content">
-      <img :src="imgUrl" style="width: 260px; height: 250px" />
-      <div class="block__text">
-        <p class="block__text--small">{{ title }}</p>
-        <div class="block__arrow">
-          <img src="../assets/img/arrow.svg" style="width: 40px; height: 20px" />
+    <router-link :to="`/catalog_price/${id}`" class="link">
+      <div class="block__content">
+        <img :src="imgUrl" style="width: 240px; height: 250px" />
+        <div class="block__text">
+          <p class="block__text--small">{{ title }}</p>
+          <div class="block__arrow">
+            <img src="../assets/img/arrow.svg" style="width: 40px; height: 20px" />
+          </div>
         </div>
       </div>
-    </div>
+    </router-link>
   </div>
 </template>
+
 <script setup>
 defineProps({
   title: String,
-  imgUrl: String
+  imgUrl: String,
+  id: [String, Number]
 })
 </script>
+
 <style lang="scss">
 .block {
   box-shadow: 0 20px 60px rgba(47, 68, 73, 0.46);
@@ -49,6 +54,10 @@ defineProps({
     justify-content: center;
     background-color: #9e7d5d;
     border-radius: 3px;
+  }
+  .link {
+    text-decoration: none;
+    color: inherit;
   }
 }
 </style>

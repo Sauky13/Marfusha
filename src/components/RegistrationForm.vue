@@ -6,8 +6,9 @@
     <form v-else class="authorization-form__border" @submit.prevent="register">
       <h2 class="authorization-form__title">Регистрация</h2>
       <div class="authorization-form__block">
-        <input v-model="fullName" type="text" placeholder="Введите имя" class="authorization-form__input">
-        <input v-model="email" type="email" placeholder="Введите email" class="authorization-form__input">
+        <input v-model="fullName" type="text" placeholder="Ваше имя" class="authorization-form__input">
+        <input v-model="phoneNumber" type="tel" placeholder="Номер телефона" class="authorization-form__input">
+        <input v-model="email" type="email" placeholder="Email" class="authorization-form__input">
         <input v-model="password" type="password" placeholder="Введите пароль" class="authorization-form__input">
         <input type="password" placeholder="Повторите пароль" class="authorization-form__input">
         <button class="authorization-form__button">Зарегистрироваться</button>
@@ -22,13 +23,11 @@ import { ref, onMounted } from 'vue';
 export default {
   setup() {
     const fullName = ref('');
+    const phoneNumber = ref('');
     const email = ref('');
     const password = ref('');
     const token = ref(null);
-
-    onMounted(() => {
-      token.value = localStorage.getItem('token');
-    });
+    const role = ref(1); 
 
     const register = async () => {
       try {
@@ -40,8 +39,10 @@ export default {
           },
           body: JSON.stringify({
             fullName: fullName.value,
+            phoneNumber: phoneNumber.value,
             email: email.value,
-            password: password.value
+            password: password.value,
+            role: role.value 
           })
         });
 
@@ -54,29 +55,39 @@ export default {
         console.log(data);
 
         localStorage.setItem('token', data.token);
+        localStorage.setItem('phoneNumber', phoneNumber.value);
+        localStorage.setItem('fullName', fullName.value);
+        localStorage.setItem('email', email.value);
+        localStorage.setItem('user_id', data.data.id);
+        localStorage.setItem('role', role.value); 
+        location.reload();
+        
         token.value = data.token;
       } catch (error) {
         console.error(error);
       }
     };
 
+    onMounted(() => {
+      token.value = localStorage.getItem('token');
+      fullName.value = localStorage.getItem('fullName');
+      phoneNumber.value = localStorage.getItem('phoneNumber');
+      email.value = localStorage.getItem('email');
+      role.value = localStorage.getItem('role') || role.value; 
+    });
+
     return {
       fullName,
+      phoneNumber,
       email,
       password,
       register,
-      token
+      token,
+      role
     };
   }
 };
 </script>
-
-
-
-
-
-
-
 
 
 <style lang="scss">
@@ -84,7 +95,7 @@ export default {
   &__border {
     box-shadow: 0 20px 40px 0 #2A444B21;
     width: 479px;
-    height: 467px;
+    height: 505px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -101,6 +112,7 @@ export default {
     flex-direction: column;
     gap: 20px;
     align-items: center;
+    
   }
   &__input {
     border: 2px solid #9E7D5D;

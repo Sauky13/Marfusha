@@ -8,12 +8,7 @@
         <router-link to="/catalog" class="header__item">
           <p>Каталог услуг</p>
         </router-link>
-        <router-link to="/auth" class="header__item">
-          <p>Войти</p>
-        </router-link>
-        <router-link to="/registration" class="header__item">
-          <p>Регистрация</p>
-        </router-link>
+        
       </nav>
       <p>© 2024 Marfusha</p>
     </div>

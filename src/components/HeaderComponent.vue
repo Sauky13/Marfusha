@@ -36,8 +36,9 @@ const token = computed(() => localStorage.getItem('token'))
 </script>
 
 <style lang="scss">
+
 .logo {
-  width: 150px;
+  width: 180px;
 }
 .header {
   display: flex;
@@ -57,7 +58,7 @@ const token = computed(() => localStorage.getItem('token'))
   &__item {
     text-decoration: none;
     color: rgba(99, 99, 99, 1);
-    font-size: 16px;
+    font-size: 18px;
     font-family: Helvetica, sans-serif;
   }
   &__underline {
@@ -81,7 +82,6 @@ const token = computed(() => localStorage.getItem('token'))
     border: 1px solid rgba(99, 99, 99, 0.747);
   }
 }
-
 .header_container {
   display: flex;
   gap: 160px;

@@ -7,6 +7,7 @@
             <p>Вы хотите выйти из аккаунта?</p>
             <div class="button-container">
                 <button class="yes-button" @click="logout">Да</button>
+                <button class="no-button" @click="redirectToHome">Нет</button>
             </div>
         </form>
     </div>
@@ -14,17 +15,24 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const token = ref(localStorage.getItem('token'));
+const router = useRouter();
 
 const logout = () => {
     localStorage.removeItem('token');
     token.value = null;
+    location.reload(); 
+};
+
+const redirectToHome = () => {
+    router.push({ name: 'main' });
 };
 
 onMounted(() => {
     if (!token.value) {
-        localStorage.removeItem('token');
+        localStorage.clear();
     }
 });
 </script>
@@ -48,16 +56,16 @@ button {
     margin: 0 5px;
     border: none;
     border-radius: 5px;
-    color: white;
+    color: rgb(255, 255, 255);
     cursor: pointer;
 }
 
 .yes-button {
-    background-color: green;
+    background-color:  #7c8b7c;
 }
 
 .no-button {
-    background-color: red;
+    background-color: rgb(151, 107, 107);
 }
 
 h2 {

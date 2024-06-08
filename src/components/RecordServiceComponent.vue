@@ -1,30 +1,34 @@
 <template>
   <div class="Records__service__container">
-    <p v-if="message">{{ message }}</p>
-    <form v-if="!formSubmitted" @submit.prevent="submitForm">
+    <p v-if="!isUserLoggedIn" >
+      <router-link class="note" to="/registration">Зарегистрируйтесь</router-link> или
+      <router-link class="note" to="/auth">Войдите</router-link> для записи на услугу
+    </p>
+    <p v-else-if="message">{{ message }}</p>
+    <form v-if="!formSubmitted && isUserLoggedIn" @submit.prevent="submitForm">
       <p>Выберите услугу</p>
       <input type="text" v-model="searchTerm" placeholder="Поиск услуги" class="search-input" />
       <div v-for="service in filteredServices" :key="service.id" class="service-item">
         <input
-          type="checkbox"
+          type="radio"
           :id="service.id"
           :value="service.id"
-          v-model="selectedServices"
-          class="service-checkbox"
+          v-model="selectedService"
+          class="service-radio"
         />
         <label :for="service.id" class="service-label"
           >{{ service.name }} {{ service.price }}</label
         >
       </div>
-      <p>Выберите дату</p>
-      <input type="date" v-model="selectedDate" :min="today" class="date-input" />
-      <p>Выберите время</p>
-      <select class="time-select">
-        <option v-for="(time, index) in times" :key="index">{{ time.time }}</option>
-      </select>
-      <p v-if="selectedServices.length > 0" class="total-cost">
-        Итоговая стоимость: <span class="cost">{{ totalCost }}</span>
-      </p>
+      <div v-if="selectedService && freeTime.length > 0" class="free-time-container">
+        <p>Выберите свободное время и дату:</p>
+        <select v-model="selectedTime" class="time-select">
+          <option disabled value="">Выберите время и дату</option>
+          <option v-for="time in freeTime" :key="time.id" :value="time.id">
+            {{ time.time }} {{ time.date }}
+          </option>
+        </select>
+      </div>
       <button type="submit" class="submit-button" :disabled="!isFormValid">Записаться</button>
     </form>
   </div>
@@ -35,40 +39,67 @@ import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
 const services = ref([])
-const selectedServices = ref([])
+const selectedService = ref(null)
 const searchTerm = ref('')
 const message = ref('')
 const formSubmitted = ref(false)
-const today = new Date().toISOString().split('T')[0]
-const selectedDate = ref([])
+const freeTime = ref([])
+const selectedTime = ref(null)
+const userId = ref(null)
+const userName = ref('')
+const userNumber = ref('')
 
 onMounted(async () => {
   try {
     const servicesResponse = await axios.get('https://0052e5635286382d.mokky.dev/services')
     services.value = servicesResponse.data
+    await getUserData()
   } catch (error) {
     console.error(error)
   }
 })
 
-onMounted(async () => {
+const isUserLoggedIn = computed(() => {
+  return localStorage.getItem('token') !== null
+})
+
+const getUserData = async () => {
   try {
-    const response = await axios.get('https://0052e5635286382d.mokky.dev/time')
-    selectedDate.value = response.data
+    const response = await axios.get(`https://0052e5635286382d.mokky.dev/auth_me`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    userId.value = response.data.id
+    userName.value = response.data.fullName
+    userNumber.value = response.data.phoneNumber
   } catch (error) {
     console.error(error)
   }
-})
+}
 
-const totalCost = computed(() => {
-  return selectedServices.value.reduce((total, id) => {
-    const service = services.value.find((service) => service.id === id)
-    return total + (service ? parseFloat(service.price) : 0)
-  }, 0)
+const fetchFreeTime = async (serviceId) => {
+  try {
+    const response = await axios.get(
+      `https://0052e5635286382d.mokky.dev/freetime?service_id=${serviceId}`
+    )
+    freeTime.value = response.data
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+import { watch } from 'vue'
+
+watch(selectedService, (newVal) => {
+  if (newVal) {
+    fetchFreeTime(newVal)
+  }
 })
 
 const isFormValid = computed(() => {
-  return selectedServices.value.length > 0
+  return selectedService.value !== null && selectedTime.value !== null
 })
 
 const filteredServices = computed(() => {
@@ -82,27 +113,27 @@ const filteredServices = computed(() => {
 
 const submitForm = async () => {
   try {
-    const selectedServiceNames = selectedServices.value.map((id) => {
-      const service = services.value.find((service) => service.id === id)
-      return service ? service.name : ''
-    })
-
-    const totalCost = selectedServices.value.reduce((total, id) => {
-      const service = services.value.find((service) => service.id === id)
-      return total + (service ? parseFloat(service.price) : 0)
-    }, 0)
-
-    const userId = localStorage.getItem('user_id')
+    const selectedServiceName =
+      services.value.find((service) => service.id === selectedService.value)?.name || ''
+    const totalCost =
+      services.value.find((service) => service.id === selectedService.value)?.price || 0
+    const selectedFreeTime = freeTime.value.find((time) => time.id === selectedTime.value) || {}
 
     await axios.post('https://0052e5635286382d.mokky.dev/records', {
-      user_id: userId,
-      services_id: selectedServices.value,
-      serviceNames: selectedServiceNames,
+      user_id: userId.value,
+      user_name: userName.value,
+      user_number: userNumber.value,
+      services_id: [selectedService.value],
+      serviceNames: [selectedServiceName],
       totalCost: totalCost,
+      freeTime: selectedFreeTime,
       awaits: true,
       accepted: false,
       done: false
     })
+
+    await axios.delete(`https://0052e5635286382d.mokky.dev/freetime/${selectedTime.value}`)
+
     message.value = 'Запись успешно создана, вы можете отслеживать свои записи в личном кабинете.'
     formSubmitted.value = true
   } catch (error) {
@@ -113,6 +144,19 @@ const submitForm = async () => {
 </script>
 
 <style scoped>
+.free-time-container {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+}
+
+.time-select {
+  width: 100%;
+  padding: 5px;
+  font-size: 1.2em;
+}
+
 form {
   display: flex;
   justify-content: center;
@@ -140,6 +184,10 @@ form {
 
 .cost {
   color: red;
+}
+.note {
+  text-decoration: none;
+  color: rgba(158, 125, 93, 1);
 }
 
 .submit-button:active {
@@ -195,32 +243,8 @@ form {
   border-radius: 4px;
   margin-top: 10px;
 }
-
-.service-checkbox {
-  appearance: none;
-  background-color: rgb(255, 255, 255);
-  border: 2px solid rgb(105, 89, 72);
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  outline: none;
-  cursor: pointer;
-  position: relative;
-}
-
-.service-checkbox:checked {
-  background-color: rgb(105, 89, 72);
-}
-
-.service-checkbox:checked::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  background-color: rgb(255, 255, 255);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
+.service-radio {
+  margin: 10px;
+  transform: scale(1.5);
 }
 </style>

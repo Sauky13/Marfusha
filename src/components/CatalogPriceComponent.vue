@@ -49,8 +49,7 @@ onMounted(async () => {
 })
 </script>
 
-<style>
-
+<style scoped>
 .service__price {
   display: flex;
   flex-direction: column;
@@ -65,10 +64,10 @@ onMounted(async () => {
   color: rgba(158, 125, 93, 1);
 }
 
-.service__price .name, .service__price .price {
+.service__price .name,
+.service__price .price {
   margin: 0;
 }
-
 
 .service__details {
   display: flex;
@@ -76,7 +75,8 @@ onMounted(async () => {
   width: 100%;
 }
 
-.service__details .name, .service__details .price {
+.service__details .name,
+.service__details .price {
   margin: 0;
 }
 
@@ -88,9 +88,9 @@ onMounted(async () => {
 
 .service__price p {
   font-size: 24px;
-    color: #333;
-    font-weight: bold;
-    width: 50%;
+  color: #333;
+  font-weight: bold;
+  width: 50%;
 }
 
 .catalog__price {

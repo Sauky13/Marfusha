@@ -6,11 +6,51 @@
     <form v-else class="authorization-form__border" @submit.prevent="register">
       <h2 class="authorization-form__title">Регистрация</h2>
       <div class="authorization-form__block">
-        <input v-model="fullName" type="text" placeholder="Ваше имя" class="authorization-form__input">
-        <input v-model="phoneNumber" type="tel" placeholder="Номер телефона" class="authorization-form__input">
-        <input v-model="email" type="email" placeholder="Email" class="authorization-form__input">
-        <input v-model="password" type="password" placeholder="Введите пароль" class="authorization-form__input">
-        <input type="password" placeholder="Повторите пароль" class="authorization-form__input">
+        <input
+          id="fullName"
+          name="fullName"
+          v-model="fullName"
+          type="text"
+          placeholder="Ваше имя"
+          class="authorization-form__input"
+        />
+        <div v-if="fullNameError" class="error">{{ fullNameError }}</div>
+        <input
+          id="phoneNumber"
+          name="phoneNumber"
+          v-model="phoneNumber"
+          type="tel"
+          placeholder="Номер телефона"
+          class="authorization-form__input"
+        />
+        <div v-if="phoneNumberError" class="error">{{ phoneNumberError }}</div>
+        <input
+          id="email"
+          name="email"
+          v-model="email"
+          type="email"
+          placeholder="Email"
+          class="authorization-form__input"
+        />
+        <div v-if="emailError" class="error">{{ emailError }}</div>
+        <input
+          id="password"
+          name="password"
+          v-model="password"
+          type="password"
+          placeholder="Введите пароль"
+          class="authorization-form__input"
+        />
+        <div v-if="passwordError" class="error">{{ passwordError }}</div>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          v-model="confirmPassword"
+          type="password"
+          placeholder="Повторите пароль"
+          class="authorization-form__input"
+        />
+        <div v-if="confirmPasswordError" class="error">{{ confirmPasswordError }}</div>
         <button class="authorization-form__button">Зарегистрироваться</button>
       </div>
     </form>
@@ -18,116 +58,164 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { reactive, toRefs, ref } from 'vue'
 
 export default {
   setup() {
-    const fullName = ref('');
-    const phoneNumber = ref('');
-    const email = ref('');
-    const password = ref('');
-    const token = ref(null);
-    const role = ref(1); 
+    const state = reactive({
+      fullName: '',
+      phoneNumber: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      role: 1,
+      id: '',
+      token: ''
+    })
+
+    const fullNameError = ref('')
+    const phoneNumberError = ref('')
+    const emailError = ref('')
+    const passwordError = ref('')
+    const confirmPasswordError = ref('')
+    const serverError = ref('')
+
+    const validateForm = () => {
+      let isValid = true
+
+      if (!state.fullName || /\d/.test(state.fullName)) {
+        fullNameError.value = 'Имя не может быть пустым или содержать цифры'
+        isValid = false
+      } else {
+        fullNameError.value = ''
+      }
+
+      if (!state.phoneNumber || !/^\d{11}$/.test(state.phoneNumber)) {
+        phoneNumberError.value = 'Номер телефона должен содержать 11 цифр'
+        isValid = false
+      } else {
+        phoneNumberError.value = ''
+      }
+
+      if (!state.email || !/\S+@\S+\.\S+/.test(state.email)) {
+        emailError.value = 'Введите корректный email'
+        isValid = false
+      } else {
+        emailError.value = ''
+      }
+
+      if (!state.password || state.password.length < 8) {
+        passwordError.value = 'Пароль не может содержать меньше 8 символов'
+        isValid = false
+      } else {
+        passwordError.value = ''
+      }
+
+      if (state.password !== state.confirmPassword) {
+        confirmPasswordError.value = 'Пароли не совпадают'
+        isValid = false
+      } else {
+        confirmPasswordError.value = ''
+      }
+
+      return isValid
+    }
 
     const register = async () => {
+      if (!validateForm()) {
+        return
+      }
+
       try {
-        const response = await fetch("https://0052e5635286382d.mokky.dev/register", {
-          method: "POST",
+        const response = await fetch('https://0052e5635286382d.mokky.dev/register', {
+          method: 'POST',
           headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            fullName: fullName.value,
-            phoneNumber: phoneNumber.value,
-            email: email.value,
-            password: password.value,
-            role: role.value 
+            fullName: state.fullName,
+            phoneNumber: state.phoneNumber,
+            email: state.email,
+            password: state.password,
+            role: state.role
           })
-        });
+        })
 
         if (!response.ok) {
-          const message = `An error has occured: ${response.status}`;
-          throw new Error(message);
+          const data = await response.json()
+          if (response.status === 401) {
+            serverError.value = 'Неверные учетные данные'
+          } else if (data.error === 'User already exists') {
+            serverError.value = 'Пользователь уже существует'
+          } else {
+            const message = `HTTP error! status: ${response.status}`
+            throw new Error(message)
+          }
+          return
         }
 
-        const data = await response.json();
-        console.log(data);
-
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('phoneNumber', phoneNumber.value);
-        localStorage.setItem('fullName', fullName.value);
-        localStorage.setItem('email', email.value);
-        localStorage.setItem('user_id', data.data.id);
-        localStorage.setItem('role', role.value); 
-        location.reload();
-        
-        token.value = data.token;
+        const data = await response.json()
+        state.id = data.data.id
+        state.token = data.token
+        console.log(data)
+        localStorage.setItem('token', state.token)
+        serverError.value = ''
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
-    };
-
-    onMounted(() => {
-      token.value = localStorage.getItem('token');
-      fullName.value = localStorage.getItem('fullName');
-      phoneNumber.value = localStorage.getItem('phoneNumber');
-      email.value = localStorage.getItem('email');
-      role.value = localStorage.getItem('role') || role.value; 
-    });
-
+    }
     return {
-      fullName,
-      phoneNumber,
-      email,
-      password,
+      ...toRefs(state),
       register,
-      token,
-      role
-    };
+      fullNameError,
+      phoneNumberError,
+      emailError,
+      passwordError,
+      confirmPasswordError
+    }
   }
-};
+}
 </script>
 
+<style scoped>
+.authorization-form__border {
+  box-shadow: 0 20px 40px 0 #2a444b21;
+  width: 479px;
+  height: 505px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
 
-<style lang="scss">
-.authorization-form {
-  &__border {
-    box-shadow: 0 20px 40px 0 #2A444B21;
-    width: 479px;
-    height: 505px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-  }
-  &__title {
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    color: #636363;
-    font-size: 20px;
-  }
-  &__block {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-    
-  }
-  &__input {
-    border: 2px solid #9E7D5D;
-    width: 395px;
-    height: 57px;
-    padding: 10px;
-  }
-  &__button {
-    background: #525252;
-    font-size: 20px;
-    color: rgb(255, 255, 255);
-    border: none;
-    width: 230px;
-    height: 50px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-  }
+.authorization-form__title {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  color: #636363;
+  font-size: 20px;
+}
+
+.authorization-form__block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.authorization-form__input {
+  border: 2px solid #9e7d5d;
+  width: 395px;
+  height: 57px;
+  padding: 10px;
+}
+
+.authorization-form__button {
+  background: #525252;
+  font-size: 20px;
+  color: rgb(255, 255, 255);
+  border: none;
+  width: 230px;
+  height: 50px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 </style>

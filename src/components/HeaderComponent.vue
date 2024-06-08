@@ -35,53 +35,61 @@ import { computed } from 'vue'
 const token = computed(() => localStorage.getItem('token'))
 </script>
 
-<style lang="scss">
+<style scoped>
 
 .logo {
   width: 180px;
 }
+
 .header {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-
-  &__logo {
-    display: flex;
-    gap: 200px;
-    align-items: center;
-  }
-  &__nav {
-    display: flex;
-    gap: 20px;
-  }
-  &__item {
-    text-decoration: none;
-    color: rgba(99, 99, 99, 1);
-    font-size: 18px;
-    font-family: Helvetica, sans-serif;
-  }
-  &__underline {
-    width: 100%;
-    margin-top: 5px;
-    border: 1px solid rgba(99, 99, 99, 0.747);
-  }
 }
+
+.header__logo {
+  display: flex;
+  gap: 200px;
+  align-items: center;
+}
+
+.header__nav {
+  display: flex;
+  gap: 20px;
+}
+
+.header__item {
+  text-decoration: none;
+  color: rgba(99, 99, 99, 1);
+  font-size: 18px;
+  font-family: Helvetica, sans-serif;
+}
+
+.header__underline {
+  width: 100%;
+  margin-top: 5px;
+  border: 1px solid rgba(99, 99, 99, 0.747);
+}
+
 .nav a {
   text-decoration: none;
   color: rgba(99, 99, 99, 1);
   font-size: 14px;
   font-family: sans-serif;
 }
+
 .nav {
   display: flex;
   gap: 30px;
-  &__underline {
-    width: 100%;
-    margin-top: 5px;
-    border: 1px solid rgba(99, 99, 99, 0.747);
-  }
 }
+
+.nav__underline {
+  width: 100%;
+  margin-top: 5px;
+  border: 1px solid rgba(99, 99, 99, 0.747);
+}
+
 .header_container {
   display: flex;
   gap: 160px;

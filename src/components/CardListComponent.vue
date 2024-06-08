@@ -12,7 +12,7 @@ defineProps({
 })
 </script>
 
-<style>
+<style scoped>
 .container__card {
   padding: 20px;
   display: grid;

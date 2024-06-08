@@ -12,7 +12,7 @@
 
 <script setup></script>
 
-<style lang="scss">
+<style scoped>
 .BannerHome {
   margin: 60px 0;
   width: 100%;

@@ -1,5 +1,7 @@
 <template>
   <div class="intro">
+    <img src="@/assets/img/Flower.png" alt="Flow" id="flow1" class="rounded-tl" />
+
     <img src="@/assets/img/girl.jpg" alt="girl" id="girl" class="rounded-bl" />
     <div class="container__text">
       <div class="text">
@@ -13,17 +15,18 @@
         <button id="btn" @click="goToRecords">ЗАПИСАТЬСЯ</button>
       </div>
     </div>
+    <img src="@/assets/img/Flower.png" alt="Flow" id="flow2" class="rounded-tl" />
   </div>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
+const router = useRouter()
 
 const goToRecords = () => {
-  router.push('/records');
-};
+  router.push('/records')
+}
 </script>
 
 <style scoped>
@@ -31,30 +34,46 @@ const goToRecords = () => {
   width: 520px;
   height: 520px;
 }
+
+#flow2 {
+  transform: scaleX(-1);
+}
+
+#flow1,
+#flow2 {
+  width: 170px;
+}
+
 .intro {
   margin-top: 40px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 34px;
 }
+
 h1 {
   font-size: 50px;
   color: rgba(75, 65, 44, 1);
 }
+
 p {
   font-size: 16px;
   color: rgba(75, 65, 44, 1);
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
+
 .text {
   display: flex;
   flex-direction: column;
 }
+
 .container__text {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
+
 #btn {
   background: #525252;
   font-size: 20px;
@@ -65,8 +84,9 @@ p {
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   transition: transform 0.3s ease;
 }
+
 #btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  }
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
 </style>

@@ -137,7 +137,6 @@ const submitForm = async () => {
     message.value = 'Запись успешно создана, вы можете отслеживать свои записи в личном кабинете.'
     formSubmitted.value = true
   } catch (error) {
-    console.error(error)
     message.value = 'Произошла ошибка при записи. Пожалуйста, попробуйте еще раз.'
   }
 }

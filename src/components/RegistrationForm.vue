@@ -57,124 +57,115 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { reactive, toRefs, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-export default {
-  setup() {
-    const state = reactive({
-      fullName: '',
-      phoneNumber: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      role: 1,
-      id: '',
-      token: ''
+const state = reactive({
+  fullName: '',
+  phoneNumber: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  role: 1,
+  id: '',
+  token: ''
+})
+
+const fullNameError = ref('')
+const phoneNumberError = ref('')
+const emailError = ref('')
+const passwordError = ref('')
+const confirmPasswordError = ref('')
+const serverError = ref('')
+const router = useRouter()
+
+const validateForm = () => {
+  let isValid = true
+
+  if (!state.fullName || /\d/.test(state.fullName)) {
+    fullNameError.value = 'Имя не может быть пустым или содержать цифры'
+    isValid = false
+  } else {
+    fullNameError.value = ''
+  }
+
+  if (!state.phoneNumber || !/^\d{11}$/.test(state.phoneNumber)) {
+    phoneNumberError.value = 'Номер телефона должен содержать 11 цифр'
+    isValid = false
+  } else {
+    phoneNumberError.value = ''
+  }
+
+  if (!state.email || !/\S+@\S+\.\S+/.test(state.email)) {
+    emailError.value = 'Введите корректный email'
+    isValid = false
+  } else {
+    emailError.value = ''
+  }
+
+  if (!state.password || state.password.length < 8) {
+    passwordError.value = 'Пароль не может содержать меньше 8 символов'
+    isValid = false
+  } else {
+    passwordError.value = ''
+  }
+
+  if (state.password !== state.confirmPassword) {
+    confirmPasswordError.value = 'Пароли не совпадают'
+    isValid = false
+  } else {
+    confirmPasswordError.value = ''
+  }
+
+  return isValid
+}
+
+const register = async () => {
+  if (!validateForm()) {
+    return
+  }
+
+  try {
+    const response = await fetch('https://0052e5635286382d.mokky.dev/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fullName: state.fullName,
+        phoneNumber: state.phoneNumber,
+        email: state.email,
+        password: state.password,
+        role: state.role
+      })
     })
 
-    const fullNameError = ref('')
-    const phoneNumberError = ref('')
-    const emailError = ref('')
-    const passwordError = ref('')
-    const confirmPasswordError = ref('')
-    const serverError = ref('')
-
-    const validateForm = () => {
-      let isValid = true
-
-      if (!state.fullName || /\d/.test(state.fullName)) {
-        fullNameError.value = 'Имя не может быть пустым или содержать цифры'
-        isValid = false
+    if (!response.ok) {
+      const data = await response.json()
+      if (response.status === 401) {
+        serverError.value = 'Неверные учетные данные'
+      } else if (data.error === 'User already exists') {
+        serverError.value = 'Пользователь уже существует'
       } else {
-        fullNameError.value = ''
+        const message = `HTTP error! status: ${response.status}`
+        throw new Error(message)
       }
-
-      if (!state.phoneNumber || !/^\d{11}$/.test(state.phoneNumber)) {
-        phoneNumberError.value = 'Номер телефона должен содержать 11 цифр'
-        isValid = false
-      } else {
-        phoneNumberError.value = ''
-      }
-
-      if (!state.email || !/\S+@\S+\.\S+/.test(state.email)) {
-        emailError.value = 'Введите корректный email'
-        isValid = false
-      } else {
-        emailError.value = ''
-      }
-
-      if (!state.password || state.password.length < 8) {
-        passwordError.value = 'Пароль не может содержать меньше 8 символов'
-        isValid = false
-      } else {
-        passwordError.value = ''
-      }
-
-      if (state.password !== state.confirmPassword) {
-        confirmPasswordError.value = 'Пароли не совпадают'
-        isValid = false
-      } else {
-        confirmPasswordError.value = ''
-      }
-
-      return isValid
+      return
     }
 
-    const register = async () => {
-      if (!validateForm()) {
-        return
-      }
-
-      try {
-        const response = await fetch('https://0052e5635286382d.mokky.dev/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            fullName: state.fullName,
-            phoneNumber: state.phoneNumber,
-            email: state.email,
-            password: state.password,
-            role: state.role
-          })
-        })
-
-        if (!response.ok) {
-          const data = await response.json()
-          if (response.status === 401) {
-            serverError.value = 'Неверные учетные данные'
-          } else if (data.error === 'User already exists') {
-            serverError.value = 'Пользователь уже существует'
-          } else {
-            const message = `HTTP error! status: ${response.status}`
-            throw new Error(message)
-          }
-          return
-        }
-
-        const data = await response.json()
-        state.id = data.data.id
-        state.token = data.token
-        console.log(data)
-        localStorage.setItem('token', state.token)
-        serverError.value = ''
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    return {
-      ...toRefs(state),
-      register,
-      fullNameError,
-      phoneNumberError,
-      emailError,
-      passwordError,
-      confirmPasswordError
-    }
+    const data = await response.json()
+    state.id = data.data.id
+    state.token = data.token
+    localStorage.setItem('token', state.token)
+    serverError.value = ''
+    router.push({ name: 'lk' })
+  } catch (error) {
+    console.error(error)
   }
 }
+
+const { fullName, phoneNumber, email, password, confirmPassword, token } = toRefs(state)
 </script>
 
 <style scoped>

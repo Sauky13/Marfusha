@@ -35,14 +35,17 @@
           Авторизироваться
         </button>
       </div>
-      <p>Еще нет аккаунта? <router-link class="note" to="/registration">Зарегистрируйтесь</router-link></p>
+      <p>
+        Еще нет аккаунта?
+        <router-link class="note" to="/registration">Зарегистрируйтесь</router-link>
+      </p>
     </form>
-   
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 const email = ref(localStorage.getItem('email') || '')
 const password = ref('')
@@ -51,6 +54,7 @@ const fieldsEmpty = computed(() => email.value === '' || password.value === '')
 const emailError = ref('')
 const passwordError = ref('')
 const serverError = ref('')
+const router = useRouter()
 
 const validateForm = () => {
   let isValid = true
@@ -110,11 +114,10 @@ const authorize = async () => {
     }
 
     const data = await response.json()
-    console.log(data)
     localStorage.setItem('token', data.token)
     token.value = data.token
     serverError.value = ''
-    location.reload(); 
+    router.push({ name: 'lk' })
   } catch (error) {
     console.error(error)
   }

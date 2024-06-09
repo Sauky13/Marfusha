@@ -36,7 +36,6 @@ const token = computed(() => localStorage.getItem('token'))
 </script>
 
 <style scoped>
-
 .logo {
   width: 180px;
 }

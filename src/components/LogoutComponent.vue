@@ -23,7 +23,7 @@ const router = useRouter()
 const logout = () => {
   localStorage.removeItem('token')
   token.value = null
-  location.reload()
+  router.push({ name: 'main' })
 }
 
 const redirectToHome = () => {

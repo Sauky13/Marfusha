@@ -1,7 +1,7 @@
 <template>
   <p v-if="!isUserLoggedIn">
     <router-link class="note" to="/registration">Зарегистрируйтесь</router-link> или
-    <router-link class="note" to="/auth">Войдите</router-link> для записи на услугу
+    <router-link class="note" to="/auth">Войдите</router-link> для просмотра личного кабинета
   </p>
   <div v-else class="PersonalComponent">
     <div class="Users__cart">
@@ -235,7 +235,7 @@ async function updateUser() {
         }
       }
     )
-    console.log(response.data)
+    response.data
   } catch (error) {
     console.error(error)
   }
@@ -293,7 +293,7 @@ async function updateRecordStatus(recordId, status, isChecked) {
         }
       }
     )
-    console.log(response.data)
+    response.data
     await getAllRecords()
   } catch (error) {
     console.error(error)
@@ -333,7 +333,7 @@ async function addTimeAndDate() {
         }
       }
     )
-    console.log(response.data)
+    response.data
     closeModal()
   } catch (error) {
     console.error(error)

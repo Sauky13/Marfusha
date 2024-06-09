@@ -17,7 +17,7 @@
     <div>
       <p v-if="!isUserLoggedIn">
         <router-link class="note" to="/registration">Зарегистрируйтесь</router-link> или
-        <router-link class="note" to="/auth">Войдите</router-link> для записи на услугу
+        <router-link class="note" to="/auth">Войдите</router-link> для того чтобы оставить отзыв
       </p>
     </div>
     <div class="reviews-block">
@@ -47,10 +47,11 @@ const isRole2 = ref(false)
 
 onMounted(async () => {
   isAuthenticated.value = !!localStorage.getItem('token')
-  await getUserData()
+  if (isAuthenticated.value) {
+    await getUserData()
+  }
   await getReviews()
 })
-
 const isUserLoggedIn = computed(() => {
   return localStorage.getItem('token') !== null
 })
@@ -60,7 +61,24 @@ async function postReview() {
     return
   }
 
+  const getUserData = async () => {
+    try {
+      const response = await axios.get(`https://0052e5635286382d.mokky.dev/auth_me`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+      username.value = response.data.fullName
+      isRole2.value = response.data.role === 2
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   try {
+    await getUserData()
+
     const response = await axios.post('https://0052e5635286382d.mokky.dev/reviews', {
       username: username.value,
       text: model.value.review,
@@ -73,10 +91,9 @@ async function postReview() {
       })
     })
 
-    console.log('Ответ от сервера:', response.data)
+    response.data
 
     model.value.review = ''
-
     await getReviews()
   } catch (error) {
     console.error('Ошибка при отправке отзыва:', error)
@@ -115,7 +132,7 @@ async function deleteReview(reviewId) {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     })
-    console.log('Ответ от сервера:', response.data)
+    response.data
     await getReviews()
   } catch (error) {
     console.error('Ошибка при удалении отзыва:', error)
@@ -133,12 +150,12 @@ async function deleteReview(reviewId) {
   font-size: 15px;
 }
 
-.reviews-form{
+.reviews-form {
   display: flex;
-    flex-direction: column;
-    gap: 11px;
-    align-content: center;
-    align-items: center;
+  flex-direction: column;
+  gap: 11px;
+  align-content: center;
+  align-items: center;
 }
 
 .reviews-form__form {

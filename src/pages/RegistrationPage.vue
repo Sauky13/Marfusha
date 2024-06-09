@@ -5,11 +5,13 @@
     <footer-component/>
   </div>
 </template>
+
 <script setup>
 import HeaderComponent from "@/components/HeaderComponent.vue";
 import RegistrationForm from "@/components/RegistrationForm.vue";
 import FooterComponent from "@/components/FooterComponent.vue";
 </script>
+
 <style>
 
 .container {
